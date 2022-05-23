@@ -1,21 +1,7 @@
 {
   "canisters": {
-    "png": {
-      "main": "src/png/main.mo",
-      "type": "motoko"
-    },
-    "png_assets": {
-      "dependencies": [
-        "png"
-      ],
-      "frontend": {
-        "entrypoint": "src/png_assets/src/index.html"
-      },
-      "source": [
-        "src/png_assets/assets",
-        "dist/png_assets/"
-      ],
-      "type": "assets"
+    "test":{"main":"test/main.mo",
+	    "type":"motoko"
     }
   },
   "defaults": {
