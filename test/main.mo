@@ -1,4 +1,6 @@
+import HashMap "mo:base/HashMap";
 import Encoder "../src/png/Encoder";
+import Iter "mo:base/Iter";
 import Utils "../src/png/Utils";
 import Buffer "mo:base/Buffer";
 actor test{
@@ -22,6 +24,7 @@ actor test{
     buffer.add(i1);
     buffer.add(i2);
     buffer.add(i3);
+    //Utils.hash_buffer(i3);
     var alpha_separated_buffer=Encoder.alpha_separate(buffer,3);
     return Utils.twod_buffer_to_twod_array(alpha_separated_buffer.0);
   };
@@ -47,5 +50,60 @@ actor test{
     buffer.add(i3);
     var alpha_separated_buffer=Encoder.alpha_separate(buffer,3);
     return Utils.twod_buffer_to_twod_array(alpha_separated_buffer.0);
+  };
+  public func test_indeting(): async ([Nat],[[Nat8]]){
+    var buffer=Buffer.Buffer<Buffer.Buffer<Nat8>>(3);
+    var i1=Buffer.Buffer<Nat8>(3);
+    var i2=Buffer.Buffer<Nat8>(3);
+    var i3=Buffer.Buffer<Nat8>(3);
+    var i4=Buffer.Buffer<Nat8>(3);
+    i1.add(0);
+    i1.add(0);
+    i1.add(6);
+    i1.add(253);
+    i2.add(0);
+    i2.add(0);
+    i2.add(7);
+    i2.add(255);
+    i3.add(0);
+    i3.add(0);
+    i3.add(7);
+    i3.add(255);
+    i4.add(0);
+    i4.add(0);
+    i4.add(6);
+    i4.add(253);
+    buffer.add(i1);
+    buffer.add(i2);
+    buffer.add(i3);
+    buffer.add(i4);
+    var hashmap_of_buffer=HashMap.HashMap<Buffer.Buffer<Nat8>,Nat>(3,Utils.buffer_eq,Utils.hash_buffer);
+    var indexed=Encoder.indexing(buffer,hashmap_of_buffer);
+    var hashmap_to_arr=Iter.toArray(Iter.map<Buffer.Buffer<Nat8>,[Nat8]>(indexed.1.keys(),Utils.buffer_to_array));
+    return ((indexed.0).toArray(),hashmap_to_arr);
+  };
+
+  public func test_RGB_merge():async [[Nat8]]{
+    var buffer=Buffer.Buffer<Buffer.Buffer<Nat8>>(3);
+    var i1=Buffer.Buffer<Nat8>(3);
+    var i2=Buffer.Buffer<Nat8>(3);
+    var i3=Buffer.Buffer<Nat8>(3);
+    i1.add(3);
+    i1.add(3);
+    i1.add(3);
+    i1.add(253);
+    i2.add(3);
+    i2.add(3);
+    i2.add(3);
+    i2.add(255);
+    i3.add(3);
+    i3.add(3);
+    i3.add(3);
+    i3.add(255);
+    buffer.add(i1);
+    buffer.add(i2);
+    buffer.add(i3);
+    var potential_grayscale=Encoder.RGB_merge(buffer,?1);
+    return Utils.twod_buffer_to_twod_array(potential_grayscale.0);
   };
 };
