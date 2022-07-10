@@ -1,4 +1,5 @@
 import HashMap "mo:base/HashMap";
+import Array "mo:base/Array";
 import Encoder "../src/png/Encoder";
 import Iter "mo:base/Iter";
 import Utils "../src/png/Utils";
@@ -51,7 +52,7 @@ actor test{
     var alpha_separated_buffer=Encoder.alpha_separate(buffer,3);
     return Utils.twod_buffer_to_twod_array(alpha_separated_buffer.0);
   };
-  public func test_indeting(): async ([Nat],[[Nat8]]){
+  public func test_indexing(): async ([Nat],[[Nat8]]){
     var buffer=Buffer.Buffer<Buffer.Buffer<Nat8>>(3);
     var i1=Buffer.Buffer<Nat8>(3);
     var i2=Buffer.Buffer<Nat8>(3);
@@ -105,5 +106,51 @@ actor test{
     buffer.add(i3);
     var potential_grayscale=Encoder.RGB_merge(buffer,?1);
     return Utils.twod_buffer_to_twod_array(potential_grayscale.0);
+  };
+  
+  public func get_transparent_pixels():async [[Nat8]]{
+    var buffer=Buffer.Buffer<Buffer.Buffer<Nat8>>(3);
+    var i1=Buffer.Buffer<Nat8>(3);
+    var i2=Buffer.Buffer<Nat8>(3);
+    var i3=Buffer.Buffer<Nat8>(3);
+    var i4=Buffer.Buffer<Nat8>(3);
+    var i5=Buffer.Buffer<Nat8>(3);
+    i1.add(0);
+    i1.add(0);
+    i1.add(6);
+    i1.add(0);
+    i2.add(0);
+    i2.add(0);
+    i2.add(7);
+    i2.add(255);
+    i3.add(0);
+    i3.add(0);
+    i3.add(7);
+    i3.add(255);
+    i4.add(0);
+    i4.add(0);
+    i4.add(6);
+    i4.add(253);
+    i5.add(7);
+    i5.add(7);
+    i5.add(7);
+    i5.add(253);
+    buffer.add(i1);
+    buffer.add(i2);
+    buffer.add(i3);
+    buffer.add(i4);
+    var x = Array.init<Nat8>(3,3);
+    var buffer_clone = buffer.get(0).clone();
+    buffer_clone.put(0,3);
+    var hashmap_of_buffer=HashMap.HashMap<Buffer.Buffer<Nat8>,Bool>(3,Utils.buffer_eq,Utils.hash_buffer);
+    var transparent_pixel_status_hashmap=Encoder.get_transparent_pixels(buffer,3,hashmap_of_buffer);
+    //
+    /*var iter_of_hashmap = transparent_pixel_status_hashmap.entries();
+    //
+    var modded_iter= Iter.map<(Buffer.Buffer<Nat8>,Bool),([[Nat8]],Bool)>(iter_of_hashmap,func (x:(Buffer.Buffer<Nat8>,Bool))->([[Nat8]],Bool){
+      return (Utils.twod_buffer_to_twod_array(x.0),x.1);
+    });
+    return Iter.toArray(modded_iter);*/
+    return Utils.twod_buffer_to_twod_array(buffer);
   };
 };
