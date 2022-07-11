@@ -69,6 +69,17 @@ concat_text:=concat_text#current_element_as_text;
     };
     return new_hashmap;
     };
+
+    public func array_to_buffer<A>(_array:[A]):Buffer.Buffer<A>{
+    Debug.print(Nat.toText(_array.size())#"ARRAA");
+      var buffer:Buffer.Buffer<A> =Buffer.Buffer<A>(_array.size());
+      for(i in Iter.range(0,(_array.size()-1)))
+      {
+      Debug.print("array_to_buffer: i= "#Nat.toText(i));
+	buffer.add(_array[i]);
+      };
+      return buffer;
+    };
   //messing with generics
   /*public func twod_buffer_to_twod_array(_buffer:Buffer.Buffer<Buffer.Buffer<Nat8>>):[[Nat8]]{
     var buf:HastoArray<Nat8> =_buffer.get(0);

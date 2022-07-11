@@ -89,7 +89,7 @@ pixel_value := _pixels.get(0).get(1);
     };
     return (replacement_buffer,true);
   };
-public func get_transparent_pixels(_pixels:Buffer.Buffer<Buffer.Buffer<Nat8>>,_alpha_index:Nat, _pixels_transparent:HashMap.HashMap<Buffer.Buffer<Nat8>,Bool>):HashMap.HashMap<Buffer.Buffer<Nat8>,Bool>{
+public func get_transparent_pixels(_pixels:Buffer.Buffer<Buffer.Buffer<Nat8>>,_alpha_index:Nat, _pixels_transparent:HashMap.HashMap<Buffer.Buffer<Nat8>,Bool>):(HashMap.HashMap<Buffer.Buffer<Nat8>,Bool>,Bool){
   //loop through _pixels 
   //create a buffer that contains the 3 values of the pixel excluding the alpha value
   //check if the pixel is already in _pixels_transparent
@@ -97,32 +97,55 @@ public func get_transparent_pixels(_pixels:Buffer.Buffer<Buffer.Buffer<Nat8>>,_a
   //else check if the pixel's current_alpha is 0.
   //If it is do _tranparent_pixel_status.put(pixel,true)
   //else do _pixels_transparent.put(pixel,false)
-  for(i in _pixels.vals(){
+  for (i in _pixels.vals()) {
   var current_pixel_no_alpha= Buffer.Buffer<Nat8>(3);
-    for(j in Iter.range(0,i.size(i)-1)){
+    for(j in Iter.range(0,i.size()-1)){
       if(j!=_alpha_index){
         current_pixel_no_alpha.add(i.get(j));
       }
-      }
+      };
+      if(i.get(_alpha_index)!=0 and i.get(_alpha_index)!=255){
+        return (_pixels_transparent,false);
+      };
       switch(_pixels_transparent.get(current_pixel_no_alpha)){
         case(?_tps){
           if(_tps==true){
-            if(i.get(alpha_index)!=0){
-              _pixels_transparent.put(_tps,false);
+            if(i.get(_alpha_index)!=0){
+              _pixels_transparent.put(current_pixel_no_alpha,false);
             }
           }
         };
         case(null){
-            if(i.get(alpha_index)!=0){
-              _pixels_transparent.put(_tps,false);
+            if(i.get(_alpha_index)!=0){
+              _pixels_transparent.put(current_pixel_no_alpha,false);
             }
             else{
               _pixels_transparent.put(current_pixel_no_alpha,true);
             }
         }
       };
-    }
-    return _pixels_transparent;
+    };
+    return (_pixels_transparent,true);
+};
+//this function assumes your transparent pixel is transparent for all chunks
+public func alpha_compact(_pixels:Buffer.Buffer<Buffer.Buffer<Nat8>>,_alpha_index:Nat, _transparent_pixel:Buffer.Buffer<Nat8>):(Buffer.Buffer<Buffer.Buffer<Nat8>>,Bool){
+  //loop through _pixels and replace each element with the _transparent_pixel if the alpha value is 0
+  //then remove_alpha(_pixels,_alpha_index)
+  //return the new buffer
+  for(i in _pixels.vals()){
+    if(i.get(_alpha_index)==0){
+    var counter=0;
+    for(index in Iter.range(0,i.size()-1)){
+      if(index !=_alpha_index){
+        i.put(index,_transparent_pixel.get(counter));
+        counter+=1;
+      };
+    };
+      i.put(_alpha_index,255);
+    };
+  };
+  //var x = alpha_separate(_pixels,_alpha_index);
+  return (_pixels,true);
 };
   /*public func alpha_separate<A>(_pixels:Buffer.Buffer<Buffer.Buffer<A>>,_alpha_index:Nat,_alpha_sample_max:Nat,eq:(A,A)->Bool):(Buffer.Buffer<Buffer.Buffer<A>>,Bool){
     let replacement_buffer=Buffer.Buffer<Buffer.Buffer<A>>(_pixels.size());
